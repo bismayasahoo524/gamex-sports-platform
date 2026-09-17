@@ -1,0 +1,56 @@
+name: GameX Integration Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start infrastructure
+        run: |
+          docker compose up -d
+
+      - name: Show running containers
+        run: |
+          docker ps
+
+      - name: Wait for services
+        run: |
+          sleep 20
+
+      - name: Run integration tests
+        run: |
+          if [ -d "tests/integration" ]; then
+            python -m pip install --upgrade pip
+            pip install pytest
+            pytest tests/integration -v
+          else
+            echo "No integration tests found."
+          fi
+
+      - name: Collect container logs
+        if: always()
+        run: |
+          docker compose logs
+
+      - name: Shutdown infrastructure
+        if: always()
+        run: |
+          docker compose down -v

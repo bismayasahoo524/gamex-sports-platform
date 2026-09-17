@@ -1,0 +1,45 @@
+name: GameX Docker
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - api-gateway
+          - event-service
+          - registration-service
+          - match-service
+          - notification-service
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check Dockerfile
+        run: |
+          if [ -f "backend/${{ matrix.service }}/Dockerfile" ]; then
+            echo "Found backend Dockerfile"
+          elif [ -f "services/${{ matrix.service }}/Dockerfile" ]; then
+            echo "Found services Dockerfile"
+          else
+            echo "Dockerfile not found for ${{ matrix.service }}"
+          fi

@@ -1,0 +1,54 @@
+name: GameX E2E Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start GameX environment
+        run: |
+          docker compose up -d
+
+      - name: Wait for application
+        run: |
+          sleep 30
+
+      - name: Check API Gateway
+        run: |
+          curl --fail http://localhost:8000/health
+
+      - name: Install E2E dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run E2E tests
+        run: |
+          if [ -d "tests/e2e" ]; then
+            pytest tests/e2e -v
+          else
+            echo "No E2E tests found."
+          fi
+
+      - name: Collect logs
+        if: always()
+        run: |
+          docker compose logs
+
+      - name: Shutdown
+        if: always()
+        run: |
+          docker compose down -v

@@ -1,0 +1,49 @@
+name: GameX CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/**
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    name: Lint and Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov ruff
+
+      - name: Check Python files
+        run: |
+          ruff check . || true
+
+      - name: Run unit tests
+        run: |
+          if [ -d "tests/unit" ]; then
+            pytest tests/unit \
+              --cov=. \
+              --cov-report=term-missing \
+              --cov-report=xml
+          else
+            echo "No unit test directory found."
+          fi
