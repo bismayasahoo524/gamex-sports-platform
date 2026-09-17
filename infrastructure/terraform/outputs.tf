@@ -1,43 +1,38 @@
-# ==========================================
-# SQS Outputs
-# ==========================================
-
-output "registration_fifo_queue_url" {
-  description = "Registration FIFO SQS queue URL"
-  value       = aws_sqs_queue.registration_fifo.url
+output "vpc_id" {
+  description = "GameX VPC ID"
+  value       = aws_vpc.gamex.id
 }
 
-output "registration_fifo_queue_arn" {
-  description = "Registration FIFO SQS queue ARN"
-  value       = aws_sqs_queue.registration_fifo.arn
+output "vpc_cidr" {
+  description = "GameX VPC CIDR block"
+  value       = aws_vpc.gamex.cidr_block
 }
 
-output "ai_inference_fifo_queue_url" {
-  description = "AI inference FIFO SQS queue URL"
-  value       = aws_sqs_queue.ai_inference_fifo.url
+output "public_subnet_ids" {
+  description = "GameX public subnet IDs"
+  value = [
+    aws_subnet.public_a.id,
+    aws_subnet.public_b.id
+  ]
 }
 
-output "ai_inference_fifo_queue_arn" {
-  description = "AI inference FIFO SQS queue ARN"
-  value       = aws_sqs_queue.ai_inference_fifo.arn
+output "private_subnet_ids" {
+  description = "GameX private subnet IDs"
+  value = [
+    aws_subnet.private_a.id,
+    aws_subnet.private_b.id
+  ]
 }
 
-output "sync_reconnect_std_queue_url" {
-  description = "Reconnect synchronization SQS queue URL"
-  value       = aws_sqs_queue.sync_reconnect_std.url
+output "availability_zones" {
+  description = "Availability Zones used by GameX"
+  value = [
+    aws_subnet.public_a.availability_zone,
+    aws_subnet.public_b.availability_zone
+  ]
 }
 
-output "sync_reconnect_std_queue_arn" {
-  description = "Reconnect synchronization SQS queue ARN"
-  value       = aws_sqs_queue.sync_reconnect_std.arn
-}
-
-output "notification_dispatch_std_queue_url" {
-  description = "Notification dispatch SQS queue URL"
-  value       = aws_sqs_queue.notification_dispatch_std.url
-}
-
-output "notification_dispatch_std_queue_arn" {
-  description = "Notification dispatch SQS queue ARN"
-  value       = aws_sqs_queue.notification_dispatch_std.arn
+output "nat_gateway_id" {
+  description = "GameX NAT Gateway ID"
+  value       = aws_nat_gateway.gamex.id
 }
