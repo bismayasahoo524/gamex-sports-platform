@@ -1,0 +1,133 @@
+---
+import GameXLayout from "../../layouts/GameXLayout.astro";
+
+const sports = [
+  {
+    name: "Football",
+    icon: "⚽",
+    value: "football"
+  },
+  {
+    name: "Cricket",
+    icon: "🏏",
+    value: "cricket"
+  },
+  {
+    name: "Badminton",
+    icon: "🏸",
+    value: "badminton"
+  },
+  {
+    name: "Tennis",
+    icon: "🎾",
+    value: "tennis"
+  },
+  {
+    name: "Basketball",
+    icon: "🏀",
+    value: "basketball"
+  }
+];
+
+const location =
+  Astro.url.searchParams.get("location") ?? "Bhubaneswar";
+---
+
+<GameXLayout title="Choose Sport - GameX">
+
+  <section class="page">
+
+    <div class="container">
+
+      <a href="/location" class="back">
+        ← Change location
+      </a>
+
+      <p class="location">
+        📍 {location}
+      </p>
+
+      <h1>What do you want to play?</h1>
+
+      <div class="sports">
+
+        {sports.map((sport) => (
+          <a
+            href={`/venues?sport=${sport.value}&location=${encodeURIComponent(location)}`}
+            class="sport"
+          >
+            <span>{sport.icon}</span>
+            <strong>{sport.name}</strong>
+          </a>
+        ))}
+
+      </div>
+
+    </div>
+
+  </section>
+
+</GameXLayout>
+
+<style>
+  .page {
+    padding: 70px 0;
+  }
+
+  .container {
+    width: min(1000px, 92%);
+    margin: auto;
+  }
+
+  .back {
+    text-decoration: none;
+    color: #374151;
+  }
+
+  .location {
+    margin-top: 35px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  h1 {
+    font-size: 48px;
+    margin: 15px 0 40px;
+  }
+
+  .sports {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .sport {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    padding: 45px 20px;
+    text-align: center;
+    text-decoration: none;
+    color: #111827;
+  }
+
+  .sport span {
+    display: block;
+    font-size: 55px;
+    margin-bottom: 20px;
+  }
+
+  .sport strong {
+    font-size: 20px;
+  }
+
+  .sport:hover {
+    transform: translateY(-3px);
+  }
+
+  @media (max-width: 700px) {
+    .sports {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>

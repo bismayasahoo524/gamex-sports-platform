@@ -1,0 +1,82 @@
+pipeline {
+    agent any
+
+    environment {
+        PROJECT_NAME = 'gamex-sports-platform'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Prepare Test Environment') {
+            steps {
+                echo 'Preparing GameX test environment...'
+
+                bat 'docker compose up -d'
+            }
+        }
+
+        stage('Deploy Test Environment') {
+            steps {
+                echo 'Deploying GameX test environment...'
+
+                // Test-environment deployment logic goes here.
+                // Production deployment remains the responsibility
+                // of Argo CD through GitOps.
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                echo 'Running GameX integration tests...'
+
+                bat 'jenkins\\Jenkinsfile.integration'
+            }
+        }
+
+        stage('E2E Tests') {
+            steps {
+                echo 'Running GameX E2E tests...'
+
+                bat 'jenkins\\Jenkinsfile.e2e'
+            }
+        }
+
+        stage('Publish Results') {
+            steps {
+                echo 'Publishing test results...'
+
+                junit allowEmptyResults: true,
+                      testResults: '**/test-results/**/*.xml'
+            }
+        }
+
+        stage('Trigger/Validate GitOps Promotion') {
+            steps {
+                echo 'Validating GitOps promotion...'
+
+                // Jenkins does not directly deploy production.
+                // GitOps + Argo CD remain the deployment authority.
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'GameX Jenkins pipeline completed.'
+        }
+
+        success {
+            echo 'GameX validation pipeline succeeded.'
+        }
+
+        failure {
+            echo 'GameX validation pipeline failed.'
+        }
+    }
+}

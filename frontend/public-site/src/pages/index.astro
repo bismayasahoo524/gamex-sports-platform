@@ -1,0 +1,202 @@
+---
+import GameXLayout from "../layouts/GameXLayout.astro";
+---
+---
+import GameXLayout from "../../layouts/GameXLayout.astro";
+
+const location =
+  Astro.url.searchParams.get("location") ?? "Bhubaneswar";
+
+const sport =
+  Astro.url.searchParams.get("sport") ?? "football";
+
+const apiUrl =
+  `http://localhost:8007/v1/venues?location=${encodeURIComponent(location)}&sport=${encodeURIComponent(sport)}`;
+
+let venues = [];
+
+try {
+  const response = await fetch(apiUrl);
+
+  if (response.ok) {
+    const data = await response.json();
+    venues = data.venues ?? [];
+  }
+} catch (error) {
+  console.error("Venue API error:", error);
+}
+---
+
+<GameXLayout title="Sports Venues - GameX">
+
+  <section class="page">
+
+    <div class="container">
+
+      <a
+        href={`/sports?location=${encodeURIComponent(location)}`}
+        class="back"
+      >
+        ← Change sport
+      </a>
+
+      <div class="heading">
+
+        <div>
+          <p>📍 {location}</p>
+
+          <h1>
+            {sport.charAt(0).toUpperCase() + sport.slice(1)}
+            venues
+          </h1>
+        </div>
+
+      </div>
+
+      {venues.length === 0 ? (
+
+        <div class="empty">
+          <h2>No venues found</h2>
+          <p>
+            We couldn't find venues matching your selection.
+          </p>
+        </div>
+
+      ) : (
+
+        <div class="venue-grid">
+
+          {venues.map((venue) => (
+
+            <a
+              href={`/venues/${venue.id}`}
+              class="venue-card"
+            >
+
+              <div class="image-placeholder">
+                🏟️
+              </div>
+
+              <div class="venue-content">
+
+                <h2>{venue.name}</h2>
+
+                <p class="address">
+                  📍 {venue.address}
+                </p>
+
+                <p>
+                  {venue.description}
+                </p>
+
+                <div class="venue-footer">
+
+                  <strong>
+                    ₹{venue.price_per_hour}/hour
+                  </strong>
+
+                  <span>
+                    View →
+                  </span>
+
+                </div>
+
+              </div>
+
+            </a>
+
+          ))}
+
+        </div>
+
+      )}
+
+    </div>
+
+  </section>
+
+</GameXLayout>
+
+<style>
+  .page {
+    padding: 70px 0;
+  }
+
+  .container {
+    width: min(1200px, 92%);
+    margin: auto;
+  }
+
+  .back {
+    color: #374151;
+    text-decoration: none;
+  }
+
+  .heading {
+    margin: 35px 0;
+  }
+
+  .heading p {
+    color: #6b7280;
+  }
+
+  h1 {
+    font-size: 48px;
+    margin: 10px 0;
+  }
+
+  .venue-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .venue-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    overflow: hidden;
+    text-decoration: none;
+    color: #111827;
+  }
+
+  .image-placeholder {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    background: #e5e7eb;
+  }
+
+  .venue-content {
+    padding: 22px;
+  }
+
+  .venue-content h2 {
+    margin-top: 0;
+  }
+
+  .address {
+    color: #6b7280;
+  }
+
+  .venue-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+  }
+
+  .empty {
+    background: white;
+    padding: 60px;
+    border-radius: 15px;
+    text-align: center;
+  }
+
+  @media (max-width: 800px) {
+    .venue-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

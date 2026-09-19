@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Prepare E2E Environment') {
+            steps {
+                echo 'Preparing GameX E2E environment...'
+
+                bat 'docker compose up -d'
+            }
+        }
+
+        stage('Run E2E Tests') {
+            steps {
+                echo 'Running GameX E2E tests...'
+
+                bat 'python -m pytest tests/e2e -v --junitxml=test-results/e2e.xml'
+            }
+        }
+
+        stage('Validate Results') {
+            steps {
+                echo 'Validating E2E results...'
+
+                junit allowEmptyResults: true,
+                      testResults: 'test-results/e2e.xml'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'E2E pipeline finished.'
+        }
+
+        success {
+            echo 'E2E tests passed.'
+        }
+
+        failure {
+            echo 'E2E tests failed.'
+        }
+    }
+}

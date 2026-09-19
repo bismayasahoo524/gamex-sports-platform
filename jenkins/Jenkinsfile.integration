@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Prepare Environment') {
+            steps {
+                echo 'Starting GameX integration-test dependencies...'
+
+                bat 'docker compose up -d'
+            }
+        }
+
+        stage('Wait for Services') {
+            steps {
+                echo 'Waiting for GameX services...'
+
+                bat 'docker ps'
+            }
+        }
+
+        stage('Run Integration Tests') {
+            steps {
+                echo 'Running GameX integration tests...'
+
+                bat 'python -m pytest tests/integration -v --junitxml=test-results/integration.xml'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Integration test pipeline finished.'
+        }
+
+        success {
+            echo 'Integration tests passed.'
+        }
+
+        failure {
+            echo 'Integration tests failed.'
+        }
+    }
+}

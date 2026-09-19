@@ -1,162 +1,92 @@
-from uuid import UUID
+from fastapi import APIRouter, HTTPException, Query
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-
-from app.database import get_db
-from app.models.venue import Venue
-from app.schemas.venue import (
-    VenueCreate,
-    VenueResponse,
-    VenueUpdate,
-)
-
+from app.models.venue import Venue, VenueListResponse
 
 router = APIRouter(
     prefix="/v1/venues",
-    tags=["Venues"],
+    tags=["Venues"]
 )
 
 
-# Temporary development tenant.
-# We will replace this with JWT tenant extraction.
-DEMO_TENANT_ID = UUID(
-    "00000000-0000-0000-0000-000000000001"
-)
+VENUES = [
+    Venue(
+        id="venue-001",
+        name="GameX Football Arena",
+        sport="football",
+        location="Bhubaneswar",
+        address="Patia, Bhubaneswar",
+        description="Professional football turf for 5-a-side and 7-a-side games.",
+        price_per_hour=800,
+        available=True,
+    ),
+    Venue(
+        id="venue-002",
+        name="GameX Cricket Ground",
+        sport="cricket",
+        location="Bhubaneswar",
+        address="Jayadev Vihar, Bhubaneswar",
+        description="Cricket ground suitable for practice and matches.",
+        price_per_hour=1200,
+        available=True,
+    ),
+    Venue(
+        id="venue-003",
+        name="GameX Badminton Arena",
+        sport="badminton",
+        location="Bhubaneswar",
+        address="Sahid Nagar, Bhubaneswar",
+        description="Indoor badminton courts.",
+        price_per_hour=500,
+        available=True,
+    ),
+    Venue(
+        id="venue-004",
+        name="GameX Tennis Club",
+        sport="tennis",
+        location="Bhubaneswar",
+        address="Khandagiri, Bhubaneswar",
+        description="Tennis courts for training and recreational play.",
+        price_per_hour=700,
+        available=True,
+    ),
+]
 
 
-@router.post(
-    "",
-    response_model=VenueResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-def create_venue(
-    venue_data: VenueCreate,
-    db: Session = Depends(get_db),
-):
-    venue = Venue(
-        tenant_id=DEMO_TENANT_ID,
-        name=venue_data.name,
-        description=venue_data.description,
-        address=venue_data.address,
-        city=venue_data.city,
-        state=venue_data.state,
-        country=venue_data.country,
-        capacity=venue_data.capacity,
-    )
-
-    db.add(venue)
-    db.commit()
-    db.refresh(venue)
-
-    return venue
-
-
-@router.get(
-    "",
-    response_model=list[VenueResponse],
-)
+@router.get("", response_model=VenueListResponse)
 def get_venues(
-    db: Session = Depends(get_db),
+    location: str | None = Query(default=None),
+    sport: str | None = Query(default=None),
 ):
-    venues = (
-        db.query(Venue)
-        .filter(
-            Venue.tenant_id == DEMO_TENANT_ID
-        )
-        .all()
+    venues = VENUES
+
+    if location:
+        venues = [
+            venue
+            for venue in venues
+            if venue.location.lower() == location.lower()
+        ]
+
+    if sport:
+        venues = [
+            venue
+            for venue in venues
+            if venue.sport.lower() == sport.lower()
+        ]
+
+    return VenueListResponse(
+        venues=venues,
+        total=len(venues),
     )
 
-    return venues
 
+@router.get("/{venue_id}", response_model=Venue)
+def get_venue(venue_id: str):
 
-@router.get(
-    "/{venue_id}",
-    response_model=VenueResponse,
-)
-def get_venue(
-    venue_id: UUID,
-    db: Session = Depends(get_db),
-):
-    venue = (
-        db.query(Venue)
-        .filter(
-            Venue.id == venue_id,
-            Venue.tenant_id == DEMO_TENANT_ID,
-        )
-        .first()
+    for venue in VENUES:
+        if venue.id == venue_id:
+            return venue
+
+    raise HTTPException(
+        status_code=404,
+        detail="Venue not found",
     )
-
-    if not venue:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Venue not found",
-        )
-
-    return venue
-
-
-@router.put(
-    "/{venue_id}",
-    response_model=VenueResponse,
-)
-def update_venue(
-    venue_id: UUID,
-    venue_data: VenueUpdate,
-    db: Session = Depends(get_db),
-):
-    venue = (
-        db.query(Venue)
-        .filter(
-            Venue.id == venue_id,
-            Venue.tenant_id == DEMO_TENANT_ID,
-        )
-        .first()
-    )
-
-    if not venue:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Venue not found",
-        )
-
-    update_data = venue_data.model_dump(
-        exclude_unset=True
-    )
-
-    for field, value in update_data.items():
-        setattr(venue, field, value)
-
-    db.commit()
-    db.refresh(venue)
-
-    return venue
-
-
-@router.delete(
-    "/{venue_id}",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-def delete_venue(
-    venue_id: UUID,
-    db: Session = Depends(get_db),
-):
-    venue = (
-        db.query(Venue)
-        .filter(
-            Venue.id == venue_id,
-            Venue.tenant_id == DEMO_TENANT_ID,
-        )
-        .first()
-    )
-
-    if not venue:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Venue not found",
-        )
-
-    db.delete(venue)
-    db.commit()
-
-    return None

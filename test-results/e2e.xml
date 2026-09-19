@@ -1,0 +1,50 @@
+<testsuites id="" name="" tests="1" failures="1" skipped="0" errors="0" time="34.643489">
+<testsuite name="registration-flow.spec.ts" timestamp="2026-09-18T13:29:04.810Z" hostname="chromium" tests="1" failures="1" skipped="0" time="7.59" errors="0">
+<testcase name="athlete can register for an event" classname="registration-flow.spec.ts" time="7.59">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|registration-flow-athlete-can-register-for-an-event-chromium\test-failed-1.png]]
+
+[[ATTACHMENT|registration-flow-athlete-can-register-for-an-event-chromium\video.webm]]
+
+[[ATTACHMENT|registration-flow-athlete-can-register-for-an-event-chromium\error-context.md]]
+]]>
+</system-out>
+<failure message="expect(page).toHaveTitle(expected) failed" type="expect.toHaveTitle">
+<![CDATA[  [chromium] › registration-flow.spec.ts:3:5 › athlete can register for an event ───────────────────
+
+    Error: expect(page).toHaveTitle(expected) failed
+
+    Expected pattern: /GameX/i
+    Received string:  "organizer-dashboard"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toHaveTitle" with timeout 5000ms
+        13 × locator resolved to <html lang="en">…</html>
+           - unexpected value "organizer-dashboard"
+
+
+      4 |   await page.goto("/");
+      5 |
+    > 6 |   await expect(page).toHaveTitle(/GameX/i);
+        |                      ^
+      7 |
+      8 |   // Navigate to the registration flow.
+      9 |   await page.getByRole("link", { name: /events/i }).click();
+        at C:\Users\rudra\Desktop\Gemx\gamex-sports-platform\tests\e2e\registration-flow.spec.ts:6:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ..\..\test-results\registration-flow-athlete-can-register-for-an-event-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ..\..\test-results\registration-flow-athlete-can-register-for-an-event-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ..\..\test-results\registration-flow-athlete-can-register-for-an-event-chromium\error-context.md
+]]>
+</failure>
+</testcase>
+</testsuite>
+</testsuites>
